@@ -1,7 +1,6 @@
 import pandas as pd
 from ucimlrepo import fetch_ucirepo
 import pandas as pd
-import json
 from sklearn.preprocessing import LabelEncoder
 from sklearn.impute import SimpleImputer
 
@@ -40,12 +39,8 @@ def split_df(df):
     return X, y
 
 
-def load_and_prepare(id_dataset, size=-1):
+def load_and_prepare(id_dataset):
     X, y, dataset_name = load_dataset(id_dataset)
-    if size != -1:
-        df = join_df(X, y)
-        df = df.head(size)
-        X, y = split_df(df)
     inputer = SimpleImputer(strategy="most_frequent")
     X = pd.DataFrame(inputer.fit_transform(X), columns=X.columns)
     X, y, encoders = label_encoding(X, y)

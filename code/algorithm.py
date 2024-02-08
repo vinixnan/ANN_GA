@@ -33,6 +33,7 @@ def run(
     max_number_of_nodes_per_layer,
     max_iter_in_ann,
     cv=2,
+    size=-1,
     random_state=None,
     eliminate_duplicates=True,
     verbose=True,
@@ -43,6 +44,7 @@ def run(
         X,
         y,
         max_iter_in_ann,
+        size,
         cv,
         random_state,
     )

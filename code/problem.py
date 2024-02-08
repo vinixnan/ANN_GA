@@ -2,6 +2,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_validate
 from pymoo.core.problem import ElementwiseProblem
 import numpy as np
+from dataset import join_df, split_df
 
 
 class ANNProblem(ElementwiseProblem):
@@ -12,22 +13,29 @@ class ANNProblem(ElementwiseProblem):
         X,
         y,
         max_iter,
+        size,
         cv=2,
         random_state=None,
     ):
         self.X = X
         self.y = y
         self.cv = cv
+        self.size = size
         self.random_state = random_state
         self.max_iter = max_iter
         xl = np.zeros(max_number_of_layers)
         xu = np.ones(max_number_of_layers) * max_number_of_nodes_per_layer
         super().__init__(
-            n_var=max_number_of_layers, n_obj=1, n_constr=1, xl=xl, xu=xu, vtype=int
+            n_var=max_number_of_layers,
+            n_obj=1,
+            n_constr=1,
+            xl=xl,
+            xu=xu,
+            vtype=int,
         )
 
     def _evaluate(self, x, out, *args, **kwargs):
-        test_accuracy, test_precision, violations = self.calculate_fitness(x)
+        test_accuracy, _, violations = self.calculate_fitness(x)
         out["F"] = [test_accuracy * -1]
         out["G"] = [violations]
 
@@ -42,6 +50,11 @@ class ANNProblem(ElementwiseProblem):
                 hidden_layer_sizes=tuple(valid_decision_variables),
                 random_state=self.random_state,
             )
+            X, y = self.X, self.y
+            if self.size != -1:
+                df = join_df(X, y)
+                df = df.sample(n=self.size)
+                X, y = split_df(df)
             scores = cross_validate(
                 classifier,
                 self.X,
